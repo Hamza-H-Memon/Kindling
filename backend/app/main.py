@@ -2,7 +2,7 @@
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db import init_db
-from app.routers import tasks
+from app.routers import ai, tasks
 
 app = FastAPI(title="Kindling API")
 
@@ -14,6 +14,7 @@ app.add_middleware(
 )
 
 app.include_router(tasks.router)
+app.include_router(ai.router)
 
 
 @app.on_event("startup")
