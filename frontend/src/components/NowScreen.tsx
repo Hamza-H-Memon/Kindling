@@ -1,6 +1,6 @@
 ﻿import { useEffect, useRef, useState } from 'react'
 import TimerRing from './TimerRing'
-import { fetchTasks, updateTask, type Task } from '../lib/api'
+import { fetchTasks, updateTask, makeSmaller, type Task } from '../lib/api'
 
 const START_SECONDS = 120
 
@@ -14,6 +14,7 @@ function NowScreen() {
   const [task, setTask] = useState<Task | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [shrinking, setShrinking] = useState(false)
 
   const [remaining, setRemaining] = useState(START_SECONDS)
   const [running, setRunning] = useState(false)
@@ -58,6 +59,20 @@ function NowScreen() {
     if (!task) return
     await updateTask(task.id, { done: true })
     setTask(null)
+  }
+
+  async function handleSmaller() {
+    if (!task) return
+    setShrinking(true)
+    try {
+      const newStep = await makeSmaller(task.title, task.step)
+      const updated = await updateTask(task.id, { step: newStep })
+      setTask(updated)
+    } catch {
+      setError('Could not shrink that step.')
+    } finally {
+      setShrinking(false)
+    }
   }
 
   return (
@@ -115,6 +130,15 @@ function NowScreen() {
               I'm done
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={handleSmaller}
+            disabled={shrinking}
+            className="mt-4 min-h-[44px] px-4 text-[16px] font-medium text-[var(--color-muted)] underline underline-offset-4 disabled:opacity-50"
+          >
+            {shrinking ? 'Shrinking...' : 'Too big? Make it smaller'}
+          </button>
         </>
       )}
     </main>

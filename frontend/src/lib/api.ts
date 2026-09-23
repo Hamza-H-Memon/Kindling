@@ -56,3 +56,17 @@ export async function sortBrainDump(text: string): Promise<SortedTask[]> {
   if (!res.ok) throw new Error("Failed to sort")
   return res.json()
 }
+
+export async function makeSmaller(
+  title: string,
+  step: string
+): Promise<string> {
+  const res = await fetch(`${API_URL}/ai/smaller`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, step }),
+  })
+  if (!res.ok) throw new Error("Failed to shrink step")
+  const data = await res.json()
+  return data.step
+}
