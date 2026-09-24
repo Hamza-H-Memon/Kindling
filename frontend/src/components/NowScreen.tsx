@@ -18,6 +18,7 @@ function NowScreen() {
 
   const [remaining, setRemaining] = useState(START_SECONDS)
   const [running, setRunning] = useState(false)
+  const [started, setStarted] = useState(false)
   const intervalRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -53,6 +54,17 @@ function NowScreen() {
   function handleStart() {
     setRemaining(START_SECONDS)
     setRunning(true)
+    setStarted(true)
+  }
+
+  function handleToggle() {
+    setRunning((prev) => !prev)
+  }
+
+  function handleReset() {
+    setRunning(false)
+    setRemaining(START_SECONDS)
+    setStarted(false)
   }
 
   async function handleDone() {
@@ -109,19 +121,33 @@ function NowScreen() {
                 {formatTime(remaining)}
               </span>
               <span className="text-[16px] text-[var(--color-muted)]">
-                {running ? 'Just this step' : '2 minutes is enough'}
+                {!started
+                  ? '2 minutes is enough'
+                  : running
+                    ? 'Just this step'
+                    : 'Paused'}
               </span>
             </TimerRing>
           </div>
 
           <div className="mt-7 flex gap-3">
-            <button
-              type="button"
-              onClick={handleStart}
-              className="min-h-[52px] rounded-full bg-[var(--color-primary)] px-7 text-[17px] font-semibold text-[var(--color-on-primary)]"
-            >
-              {running ? 'Restart' : 'Start'}
-            </button>
+            {!started ? (
+              <button
+                type="button"
+                onClick={handleStart}
+                className="min-h-[52px] rounded-full bg-[var(--color-primary)] px-7 text-[17px] font-semibold text-[var(--color-on-primary)]"
+              >
+                Start
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleToggle}
+                className="min-h-[52px] rounded-full bg-[var(--color-primary)] px-7 text-[17px] font-semibold text-[var(--color-on-primary)]"
+              >
+                {running ? 'Pause' : 'Resume'}
+              </button>
+            )}
             <button
               type="button"
               onClick={handleDone}
@@ -131,14 +157,25 @@ function NowScreen() {
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleSmaller}
-            disabled={shrinking}
-            className="mt-4 min-h-[44px] px-4 text-[16px] font-medium text-[var(--color-muted)] underline underline-offset-4 disabled:opacity-50"
-          >
-            {shrinking ? 'Shrinking...' : 'Too big? Make it smaller'}
-          </button>
+          <div className="mt-4 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={handleSmaller}
+              disabled={shrinking}
+              className="min-h-[44px] px-2 text-[16px] font-medium text-[var(--color-muted)] underline underline-offset-4 disabled:opacity-50"
+            >
+              {shrinking ? 'Shrinking...' : 'Too big? Make it smaller'}
+            </button>
+            {started && (
+              <button
+                type="button"
+                onClick={handleReset}
+                className="min-h-[44px] px-2 text-[16px] font-medium text-[var(--color-muted)] underline underline-offset-4"
+              >
+                Restart
+              </button>
+            )}
+          </div>
         </>
       )}
     </main>
